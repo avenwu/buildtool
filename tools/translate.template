@@ -1,0 +1,1 @@
+s/android:name="UMENG_CHANNEL" android:value=".*"/android:name="UMENG_CHANNEL" android:value="channel_value_tag"/;

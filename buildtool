@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Release build script for offprint of Jiecaonews
+##  @Copyright http://www.jiecao.fm
+##  @Author chaobinwu89@gmail.com
+##
+##############################################################################
+
+#Extension for temp files
+extension=temp
+logfile=release.log
+#Prepare manifest file
+updateManifest(){
+    channel=$1
+	sed 's/channel_value_tag/'"${channel}"'/' tools/translate.template>tools/translate.$extension
+	sed -i.$extension -f tools/translate.$extension AndroidManifest.xml
+	cp AndroidManifest.xml AndroidManifest.xml.$channel.$extension
+}
+
+#Clean temp files
+clean(){
+    echo "Start cleaning temp data files if exist"
+    rm -v *.$extension
+    rm -v tools/*.$extension
+}
+
+#Usage help
+echoHelp(){
+    echo "##This script is used to release apk with gradle##"
+    echo "Usage:"
+    echo -e "./buildtool release"
+    echo -e "\\tRelease all apks in with different umeng channel values"
+    echo -e "\\tTo change umeng channel values, please refer to tools/version.cfg "
+    echo -e "./buildtool debug"
+    echo -e "\\tRelease all debug apks in with different umeng channel values"
+    echo -e "./buildtool -h"
+    echo -e "\\tHelp information"
+    echo -e "./buildtool -c"
+    echo -e "\\tClear all script generated temp files"
+}
+
+#Release apks
+releaseOffprint(){
+    echo "Start release: start at "`date`>>$logfile
+    . tools/version.cfg
+    arr=(${umeng_channel//,/ })
+    for channel in ${arr[@]};do
+        echo -e "release for $channel: start at "`date`>>$logfile
+        echo "Prapare for channel:$channel"
+        updateManifest $channel
+        echo "Start release for $channel"
+        ./gradlew clean $1
+        echo "build finished, copy apks to Desktop"
+        if [ -d ~/Desktop/$channel ] ; then
+            echo "file already existed, try to backup:"
+            mv ~/Desktop/$channel ~/Desktop/$channel-`date +%s`.$extension
+        fi
+        cp -rf build/apk/ ~/Desktop/jiecao-$channel
+        echo "Channel build for $channel done, check apks on Desktop:"`~/Desktop/$channel`
+        echo -e "finished at "`date`>>$logfile
+    done
+    echo "Release done..."
+    echo -e "Release finished at "`date`>>$logfile
+    echo "================================">>$logfile
+}
+
+case $1 in
+    -h|--help )
+        echoHelp
+        ;;
+    -c|clean )
+        clean
+        ;;
+    offprint )
+        releaseOffprint assembleRelease
+        ;;
+    debug )
+         releaseOffprint assembleDebug
+        ;;
+    * )
+        echo "Unsupported operations, please use -h|--help for more details"
+        ;;
+esac
+
+
