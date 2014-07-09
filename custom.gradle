@@ -1,0 +1,49 @@
+task ship << {
+    def outputpath = 'apk';
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == 'release') {
+            outputpath = variant.outputFile.path;
+        }
+    }
+    market_channels.split(',').each() {
+        def channel = "${it}";
+        changeChannelValue(channel);
+        exec {
+            executable "bash"
+            args "-c", "./gradlew assembleRelease"
+        }
+        println "Release for " + channel + " finished!";
+        copy {
+            from outputpath
+            into project.hasProperty('OUTPUT_DIR') && new File((String) OUTPUT_DIR).exists() ? OUTPUT_DIR : "apk"
+            rename { String fileName ->
+                fileName = fileName.replaceAll(".apk", "-v" + android.defaultConfig.versionName + "-" + channel + ".apk");
+            }
+        }
+    };
+}
+
+def changeChannelValue(channel) {
+    println "channel: " + channel;
+    def manifestFile = file(android.sourceSets.main.manifest.srcFile);
+    manifestFile.write(manifestFile.getText().replaceAll("android:name=\"UMENG_CHANNEL\" android:value=\"(.*)\"", "android:name=\"UMENG_CHANNEL\" android:value=\"" + channel + "\""), 'UTF-8');
+}
+
+def output() {
+    android.applicationVariants.all { variant ->
+        def file = variant.outputFile
+        String parent = file.parent
+        if (project.hasProperty('OUTPUT_DIR') && new File((String) OUTPUT_DIR).exists()) {
+            parent = OUTPUT_DIR
+        }
+        String apkName = (String) file.name.replaceAll(".apk", "-v" + android.defaultConfig.versionName + ".apk");
+        if (project.hasProperty('APP_NAME')) {
+            apKName = APP_NAME + "-v" + android.defaultConfig.versionName + ".apk"
+        }
+        variant.outputFile = new File(
+                parent,
+                apkName
+        )
+        outputpath = variant.outputFile.path;
+    }
+}
