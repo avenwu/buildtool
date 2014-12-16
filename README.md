@@ -10,22 +10,31 @@ Since Google announced the new Android build tools Gradle, most Android develope
 We can use the flavor build for each release version and ship them on the Google Play Store, however it can be tasteless when we need more apks on each flavor with some mirro changes, such as some meta-data for different markets outside Google Play Store. That's why I made this simple project with some usefull shell script to handle this situation.
 
 ###Usage
-This tool has been updated, with gradle task written in groovy instead of bash shell scripts.
+This tool has been updated, with gradle task written in groovy instead of bash shell scripts. Currently we have three different version, each one requires little different.
 
 	#downoad script and config file
 	git clone https://github.com/avenwu/buildtool.git
 
-To use the new buildtool your need make few configuration.
-1.Copy the custom.gradle into your project root directory, the same level with build.gradle.
-2.Apply the gradle script into build.gradle,add  apply from: 'custom.gradle' on top of build.gradle
-3.Update the gradle.properties(create it if you dont have one), market_channels stands for all your channels;
+copy ship.sh and channels.properties into your project directory,
+open terminal:
 
-Deprecated
+	./ship.sh
+####v2
+To use the new buildtool your need make few configuration.  
+
+	#downoad script and config file
+	buildtool-v2.0(https://github.com/avenwu/buildtool/releases/tag/buildtool-v2.0)
+
+1. Copy the custom.gradle into your project root directory, the same level with build.gradle.
+2. Apply the gradle script into build.gradle,add  apply from: 'custom.gradle' on top of build.gradle  
+3. Update the gradle.properties(create it if you dont have one), market_channels stands for all your channels;  
+
+####v1 Deprecated  
 So how to integrate this to your own project? Just copy the buildtool and tools into your own project directory, or you can make changes on the script as you like.
 The default release command is ./gradlew clean assembleRelease/assembleDebug, so if you have custom defined release/debug name just change it to yours.
 
 	#downoad script and config file
-	buildtoolv1.0(https://github.com/avenwu/buildtool/releases/tag/buildtool-v1.0)
+	buildtool-v1.0(https://github.com/avenwu/buildtool/releases/tag/buildtool-v1.0)
 
 Here are some usefull options:
 
@@ -41,7 +50,8 @@ Here are some usefull options:
 	#show help infomation
 	./buildtool -h|--help
 ###Roadmap
-buildtoolv1.0 (Deprecated)(https://github.com/avenwu/buildtool/releases/tag/buildtool-v1.0)
+* buildtool-v1.0 (Deprecated)(https://github.com/avenwu/buildtool/releases/tag/buildtool-v1.0)  
+* buildtool-v2.0 (https://github.com/avenwu/buildtool/releases/tag/buildtool-v2.0)
 
 ###Contributions
 Any improvemet on this project will be appreaciated, so you can fork it and make changes freely and pull requests.
